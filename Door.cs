@@ -4,21 +4,12 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    // Start is called before the first frame update
-    // void Start()
-    // {
-        
-    // }
 
-    // // Update is called once per frame
-    // void Update()
-    // {
-        
-    // }
-        
+    public GameObject levelClear;
+      
     void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Player")) {
-            Debug.Log("level clear");
+            levelClear.SetActive(true);
         }
     }
 }

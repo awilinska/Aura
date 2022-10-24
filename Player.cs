@@ -13,8 +13,11 @@ public class Player : MonoBehaviour
     public Animator animate;
     private SpriteRenderer sprite;
     public GameObject transformerSound;
+    public bool isJumping;
 
     public Sprite aura_one;
+    public Sprite aura_two;
+    public GameObject levelFailed;
 
     void Start()
     {
@@ -26,6 +29,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         if (health <= 0) {
+            levelFailed.SetActive(true);
             Destroy(gameObject);
         }
 
@@ -34,21 +38,30 @@ public class Player : MonoBehaviour
         move = Input.GetAxis("Horizontal");
         body.velocity = new Vector2(movementSpeed * move, body.velocity.y);
 
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetKeyDown(KeyCode.Space) && isJumping == false) {
             body.AddForce(new Vector2(body.velocity.x, jump));
         }
 
         AnimationUpdate();
     }
 
-        void OnTriggerEnter2D(Collider2D other) {
-        if (other.CompareTag("Transformer")) {
-            if (aura == 0) {
-                Instantiate(transformerSound, transform.position, Quaternion.identity);
-            }
+    void OnTriggerEnter2D(Collider2D other) {
+        if (other.CompareTag("Transformer_green")) {
             this.gameObject.GetComponent<SpriteRenderer>().sprite = aura_one;
             aura = 1;
             animate.SetBool("Green", true);
+            animate.SetBool("Purple", false);
+        }
+        
+        if (other.CompareTag("Transformer_purple")) {
+            this.gameObject.GetComponent<SpriteRenderer>().sprite = aura_two;
+            aura = 2;
+            animate.SetBool("Purple", true);
+            animate.SetBool("Green", false);
+        }
+
+        if (other.CompareTag("Door")) {
+            Destroy(gameObject);
         }
     }
 
@@ -60,6 +73,18 @@ public class Player : MonoBehaviour
         else if (move < 0f) {
             animate.SetFloat("movementSpeed", Mathf.Abs(move));
             sprite.flipX = true;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other) {
+        if(other.gameObject.CompareTag("Ground")) {
+            isJumping = false;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D other) {
+        if(other.gameObject.CompareTag("Ground")) {
+            isJumping = true;
         }
     }
 }
